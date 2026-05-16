@@ -1,0 +1,15 @@
+{
+  "name": "bojunka-app",
+  "version": "1.0.0",
+  "description": "Simple Express scaffold for Restaurant and Bakery paths with ordering APIs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
