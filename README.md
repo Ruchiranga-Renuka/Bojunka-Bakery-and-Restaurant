@@ -66,3 +66,5 @@ npm run build
 ```
 
 H2 console: `http://localhost:8080/h2-console` — JDBC URL `jdbc:h2:mem:bojunkadb`, user `sa`, empty password.
+<img width="1918" height="1077" alt="image" src="https://github.com/user-attachments/assets/48cdb7c0-d7d7-40c3-8864-b38d4dddc5bf" />
+
