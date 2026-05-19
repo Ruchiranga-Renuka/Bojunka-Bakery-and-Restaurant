@@ -56,12 +56,23 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                 .requestMatchers(
                     org.springframework.http.HttpMethod.GET,
                     "/api/restaurant/foods",
                     "/api/bakery/foods"
                 ).permitAll()
+                .requestMatchers(
+                    org.springframework.http.HttpMethod.POST,
+                    "/api/restaurant/foods",
+                    "/api/bakery/foods"
+                ).hasRole("ADMIN")
+                .requestMatchers(
+                    org.springframework.http.HttpMethod.POST,
+                    "/api/restaurant/orders",
+                    "/api/bakery/orders"
+                ).hasAnyRole("ADMIN", "CUSTOMER")
+                .requestMatchers("/api/auth/me").authenticated()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

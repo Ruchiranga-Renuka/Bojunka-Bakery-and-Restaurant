@@ -1,6 +1,10 @@
 # Spring Boot build output
 backend/target/
 
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
 # IDE
 .idea/
 *.iml

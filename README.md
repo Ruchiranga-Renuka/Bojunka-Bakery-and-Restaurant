@@ -1,70 +1,68 @@
-# Bojunka Restaurant & Bakery API
+# Bojunka Bakery and Restaurant
 
-Spring Boot REST API for restaurant and bakery menus, orders, and JWT authentication.
+Full-stack app: **Spring Boot** REST API + **React** frontend for customer orders and admin food management.
 
 ## Requirements
 
-- Java 17 or newer
-- No Node.js or npm required
+- Java 17+
+- Node.js 18+ (for the frontend only)
 
-## Run the application
+## Quick start
 
-From the `backend` directory:
-
-```bash
-cd backend
-./mvnw spring-boot:run
-```
-
-On Windows:
+### 1. Start the API (port 8080)
 
 ```bash
 cd backend
 mvnw.cmd spring-boot:run
 ```
 
-The API listens on `http://localhost:8080`.
+### 2. Start the frontend (port 3000)
 
-## Build and test
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open **http://localhost:3000**
+
+## Default accounts
+
+| Role | Username | Password |
+|------|----------|----------|
+| Admin | `admin` | `admin123` |
+
+Customers: use **Sign Up** on the site (role `customer`).
+
+## Features
+
+- **User login** — browse menu, place restaurant/bakery orders
+- **Admin login** — add food items (restaurant or bakery category)
+- **Menu** — public browsing; orders require user login
+- Sample menu items are seeded on first API start
+
+## API (Spring Boot)
+
+| Method | Path | Access |
+|--------|------|--------|
+| POST | `/api/auth/register` | Public (customer only) |
+| POST | `/api/auth/login` | Public |
+| GET | `/api/auth/me` | Authenticated |
+| GET | `/api/restaurant/foods` | Public |
+| GET | `/api/bakery/foods` | Public |
+| POST | `/api/restaurant/foods` | Admin |
+| POST | `/api/bakery/foods` | Admin |
+| POST | `/api/restaurant/orders` | Customer |
+| POST | `/api/bakery/orders` | Customer |
+
+## Build
 
 ```bash
 cd backend
-./mvnw clean package
-./mvnw test
+mvnw.cmd clean package
+
+cd ../frontend
+npm run build
 ```
 
-## API overview
-
-| Method | Path | Auth |
-|--------|------|------|
-| POST | `/api/auth/register` | No |
-| POST | `/api/auth/login` | No |
-| GET | `/api/restaurant/foods` | No |
-| GET | `/api/bakery/foods` | No |
-| POST | `/api/restaurant/foods` | Yes (JWT) |
-| POST | `/api/bakery/foods` | Yes (JWT) |
-| POST | `/api/restaurant/orders` | Yes (JWT) |
-| POST | `/api/bakery/orders` | Yes (JWT) |
-
-Send the JWT from login in the `Authorization: Bearer <token>` header for protected routes.
-
-## Example requests
-
-```bash
-# List restaurant foods
-curl http://localhost:8080/api/restaurant/foods
-
-# Register
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d "{\"name\":\"Alice\",\"idNumber\":\"1\",\"phoneNumber\":\"555\",\"username\":\"alice\",\"password\":\"secret\",\"role\":\"restaurant\"}"
-
-# Login
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"alice\",\"password\":\"secret\"}"
-```
-
-## Database
-
-Uses an in-memory H2 database. H2 console: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:bojunkadb`, user: `sa`, empty password).
+H2 console: `http://localhost:8080/h2-console` — JDBC URL `jdbc:h2:mem:bojunkadb`, user `sa`, empty password.

@@ -21,5 +21,5 @@ public class User {
     
     private String username;
     private String passwordHash;
-    private String role; // 'restaurant', 'bakery', 'admin'
+    private String role; // 'customer' or 'admin'
 }
