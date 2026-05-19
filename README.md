@@ -1,38 +1,70 @@
-# Bojunka Restaurant & Bakery - Minimal API
+# Bojunka Restaurant & Bakery API
 
-This project contains a minimal Express-based API with two main paths: `/restaurant` and `/bakery`.
+Spring Boot REST API for restaurant and bakery menus, orders, and JWT authentication.
 
-Features:
-- Two login endpoints: `/restaurant/login` and `/bakery/login` (stub tokens).
-- Food lists: `/restaurant/foods`, `/bakery/foods`.
-- Availability checks: `/restaurant/foods/:id/availability`, `/bakery/foods/:id/availability`.
-- Ordering endpoints: `POST /restaurant/orders`, `POST /bakery/orders` and `GET /.../orders`.
+## Requirements
 
-Quick start:
+- Java 17 or newer
+- No Node.js or npm required
 
-1. Install dependencies:
+## Run the application
 
-```bash
-npm install
-```
-
-2. Start the server:
+From the `backend` directory:
 
 ```bash
-npm start
+cd backend
+./mvnw spring-boot:run
 ```
 
-Server runs on `http://localhost:3000` by default.
+On Windows:
 
-Example curl requests:
+```bash
+cd backend
+mvnw.cmd spring-boot:run
+```
+
+The API listens on `http://localhost:8080`.
+
+## Build and test
+
+```bash
+cd backend
+./mvnw clean package
+./mvnw test
+```
+
+## API overview
+
+| Method | Path | Auth |
+|--------|------|------|
+| POST | `/api/auth/register` | No |
+| POST | `/api/auth/login` | No |
+| GET | `/api/restaurant/foods` | No |
+| GET | `/api/bakery/foods` | No |
+| POST | `/api/restaurant/foods` | Yes (JWT) |
+| POST | `/api/bakery/foods` | Yes (JWT) |
+| POST | `/api/restaurant/orders` | Yes (JWT) |
+| POST | `/api/bakery/orders` | Yes (JWT) |
+
+Send the JWT from login in the `Authorization: Bearer <token>` header for protected routes.
+
+## Example requests
 
 ```bash
 # List restaurant foods
-curl http://localhost:3000/restaurant/foods
+curl http://localhost:8080/api/restaurant/foods
 
-# Login to bakery
-curl -X POST -H "Content-Type: application/json" -d '{"username":"alice"}' http://localhost:3000/bakery/login
+# Register
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d "{\"name\":\"Alice\",\"idNumber\":\"1\",\"phoneNumber\":\"555\",\"username\":\"alice\",\"password\":\"secret\",\"role\":\"restaurant\"}"
 
-# Place an order
-curl -X POST -H "Content-Type: application/json" -d '{"itemId":1,"quantity":2,"customer":"Bob"}' http://localhost:3000/restaurant/orders
+# Login
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"alice\",\"password\":\"secret\"}"
 ```
+
+## Database
+
+Uses an in-memory H2 database. H2 console: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:bojunkadb`, user: `sa`, empty password).

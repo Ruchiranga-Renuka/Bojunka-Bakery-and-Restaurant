@@ -35,16 +35,15 @@ public class SecurityConfig {
     }
 
     @Bean
-public DaoAuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(passwordEncoder());
-    authProvider.setUserDetailsService(userDetailsService);
-    authProvider.setPasswordEncoder(passwordEncoder()); // optional, already set via constructor
-    return authProvider;
-}
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
 
     @Bean
     public AuthenticationManager authenticationManager() {
-        // Spring Security 7: use ProviderManager directly instead of AuthenticationConfiguration
         return new ProviderManager(authenticationProvider());
     }
 
