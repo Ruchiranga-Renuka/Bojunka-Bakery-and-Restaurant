@@ -28,10 +28,10 @@ public class DataInitializer {
             }
 
             if (foodRepository.count() == 0) {
-                foodRepository.save(new Food(null, "Grilled Chicken Rice", 12.99, "restaurant", 50));
-                foodRepository.save(new Food(null, "Vegetable Curry", 9.50, "restaurant", 40));
-                foodRepository.save(new Food(null, "Chocolate Croissant", 3.25, "bakery", 60));
-                foodRepository.save(new Food(null, "Sourdough Loaf", 5.99, "bakery", 30));
+                foodRepository.save(new Food(null, "Grilled Chicken Rice", 450.00, "restaurant", 50));
+                foodRepository.save(new Food(null, "Vegetable Curry", 320.00, "restaurant", 40));
+                foodRepository.save(new Food(null, "Chocolate Croissant", 120.00, "bakery", 60));
+                foodRepository.save(new Food(null, "Sourdough Loaf", 280.00, "bakery", 30));
             }
         };
     }

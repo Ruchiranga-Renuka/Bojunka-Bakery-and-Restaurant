@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchFoods, placeOrder } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { formatPrice } from '../utils/currency';
 
 const TABS = [
   { id: 'restaurant', label: 'Restaurant' },
@@ -98,7 +99,7 @@ export default function Menu() {
             <article key={food.id} className="food-card">
               <span className={`food-badge ${tab}`}>{tab}</span>
               <h3>{food.name}</h3>
-              <p className="food-price">${Number(food.price).toFixed(2)}</p>
+              <p className="food-price">{formatPrice(food.price)}</p>
               <p className="food-stock">In stock: {food.quantity}</p>
               {isAuthenticated && !isAdmin && food.quantity > 0 && (
                 <div className="order-row">

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { addFood, fetchFoods } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { formatPrice } from '../utils/currency';
 
 export default function AdminDashboard() {
   const { token } = useAuth();
@@ -77,7 +78,7 @@ export default function AdminDashboard() {
               <input value={form.name} onChange={update('name')} required />
             </label>
             <label>
-              Price ($)
+              Price (Rs)
               <input
                 type="number"
                 step="0.01"
@@ -115,7 +116,7 @@ export default function AdminDashboard() {
                 <span>
                   <strong>{food.name}</strong>
                   <small>
-                    ${Number(food.price).toFixed(2)} · stock {food.quantity}
+                    {formatPrice(food.price)} · stock {food.quantity}
                   </small>
                 </span>
               </li>

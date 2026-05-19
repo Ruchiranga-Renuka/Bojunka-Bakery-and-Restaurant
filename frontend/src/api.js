@@ -1,7 +1,7 @@
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 function authHeaders(token) {
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -9,66 +9,96 @@ function authHeaders(token) {
 }
 
 async function handleResponse(res) {
-  const text = await res.text();
+  const contentType = res.headers.get('content-type') || '';
   let data = null;
-  if (text) {
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { message: text };
+
+  if (contentType.includes('application/json')) {
+    data = await res.json();
+  } else {
+    const text = await res.text();
+    if (text) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { message: text };
+      }
     }
   }
+
   if (!res.ok) {
-    const message = data?.error || data?.message || res.statusText;
+    if (res.status === 401) {
+      throw new Error(data?.error || 'Invalid username or password');
+    }
+    if (res.status === 403) {
+      throw new Error(
+        data?.error ||
+          'Access denied. Make sure the Spring Boot backend is running on port 8080, then try again.'
+      );
+    }
+    const message = data?.error || data?.message || res.statusText || 'Request failed';
     throw new Error(message);
   }
+
   return data;
 }
 
+async function apiFetch(path, options = {}) {
+  try {
+    const res = await fetch(`${API_BASE}${path}`, options);
+    return handleResponse(res);
+  } catch (err) {
+    if (err instanceof TypeError) {
+      throw new Error('Cannot reach server. Start the backend on port 8080.');
+    }
+    throw err;
+  }
+}
+
 export async function login(username, password) {
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
+  return apiFetch('/api/auth/login', {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ username: username.trim(), password }),
   });
-  return handleResponse(res);
 }
 
 export async function register(payload) {
-  const res = await fetch(`${API_BASE}/api/auth/register`, {
+  return apiFetch('/api/auth/register', {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ ...payload, role: 'customer' }),
+    body: JSON.stringify({
+      name: payload.name?.trim(),
+      idNumber: payload.idNumber?.trim(),
+      phoneNumber: payload.phoneNumber?.trim(),
+      username: payload.username?.trim(),
+      password: payload.password,
+      role: 'customer',
+    }),
   });
-  return handleResponse(res);
 }
 
 export async function fetchProfile(token) {
-  const res = await fetch(`${API_BASE}/api/auth/me`, {
+  return apiFetch('/api/auth/me', {
     headers: authHeaders(token),
   });
-  return handleResponse(res);
 }
 
 export async function fetchFoods(category) {
-  const res = await fetch(`${API_BASE}/api/${category}/foods`);
-  return handleResponse(res);
+  return apiFetch(`/api/${category}/foods`);
 }
 
 export async function addFood(token, category, food) {
-  const res = await fetch(`${API_BASE}/api/${category}/foods`, {
+  return apiFetch(`/api/${category}/foods`, {
     method: 'POST',
     headers: authHeaders(token),
     body: JSON.stringify(food),
   });
-  return handleResponse(res);
 }
 
 export async function placeOrder(token, category, order) {
-  const res = await fetch(`${API_BASE}/api/${category}/orders`, {
+  return apiFetch(`/api/${category}/orders`, {
     method: 'POST',
     headers: authHeaders(token),
     body: JSON.stringify(order),
   });
-  return handleResponse(res);
 }

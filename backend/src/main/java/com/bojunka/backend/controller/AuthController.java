@@ -2,12 +2,15 @@ package com.bojunka.backend.controller;
 
 import com.bojunka.backend.dto.AuthRequest;
 import com.bojunka.backend.dto.AuthResponse;
+import com.bojunka.backend.dto.ErrorResponse;
+import com.bojunka.backend.dto.MessageResponse;
 import com.bojunka.backend.dto.RegisterRequest;
 import com.bojunka.backend.dto.UserProfileResponse;
 import com.bojunka.backend.model.User;
 import com.bojunka.backend.repository.UserRepository;
 import com.bojunka.backend.security.CustomUserDetails;
 import com.bojunka.backend.security.JwtTokenProvider;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,62 +37,59 @@ public class AuthController {
     JwtTokenProvider jwtUtils;
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody AuthRequest request) {
-        if (request.getUsername() == null) {
-            return ResponseEntity.badRequest().body("{\"error\": \"username required\"}");
-        }
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername().trim(),
+                            request.getPassword()));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.generateToken(authentication);
 
-            User user = userRepository.findByUsername(request.getUsername()).get();
+            User user = userRepository.findByUsername(request.getUsername().trim()).orElseThrow();
             return ResponseEntity.ok(new AuthResponse(jwt, user.getRole()));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("{\"error\": \"invalid credentials\"}");
+            return ResponseEntity.status(401).body(new ErrorResponse("Invalid username or password"));
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
-        if (request.getUsername() == null || request.getPassword() == null) {
-            return ResponseEntity.badRequest().body("{\"error\": \"username and password required\"}");
-        }
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.badRequest().body("{\"error\": \"Username is already taken!\"}");
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
+        String username = request.getUsername().trim();
+
+        if (userRepository.findByUsername(username).isPresent()) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Username is already taken"));
         }
 
         String role = request.getRole() != null ? request.getRole().trim().toLowerCase() : "customer";
         if ("admin".equals(role)) {
-            return ResponseEntity.badRequest().body("{\"error\": \"Admin accounts cannot be registered publicly\"}");
+            return ResponseEntity.badRequest().body(new ErrorResponse("Admin accounts cannot be registered publicly"));
         }
         if (!"customer".equals(role)) {
             role = "customer";
         }
 
         User user = new User();
-        user.setName(request.getName());
-        user.setIdNumber(request.getIdNumber());
-        user.setPhoneNumber(request.getPhoneNumber());
-        user.setUsername(request.getUsername());
+        user.setName(request.getName().trim());
+        user.setIdNumber(request.getIdNumber().trim());
+        user.setPhoneNumber(request.getPhoneNumber().trim());
+        user.setUsername(username);
         user.setRole(role);
         user.setPasswordHash(encoder.encode(request.getPassword()));
 
         userRepository.save(user);
 
-        return ResponseEntity.ok("{\"message\": \"User registered successfully!\"}");
+        return ResponseEntity.ok(new MessageResponse("User registered successfully"));
     }
 
     @GetMapping("/me")
     public ResponseEntity<?> currentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof CustomUserDetails details)) {
-            return ResponseEntity.status(401).body("{\"error\": \"Not authenticated\"}");
+            return ResponseEntity.status(401).body(new ErrorResponse("Not authenticated"));
         }
-        User user = userRepository.findByUsername(details.getUsername())
-                .orElseThrow();
+        User user = userRepository.findByUsername(details.getUsername()).orElseThrow();
         return ResponseEntity.ok(new UserProfileResponse(
                 user.getUsername(),
                 user.getName(),

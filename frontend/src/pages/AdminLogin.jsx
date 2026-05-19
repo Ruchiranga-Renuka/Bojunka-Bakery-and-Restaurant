@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { login, isAuthenticated, isAdmin } = useAuth();
+  const { login, logout, isAuthenticated, isAdmin } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -21,6 +21,7 @@ export default function AdminLogin() {
     e.preventDefault();
     setError('');
     setSubmitting(true);
+    logout();
     try {
       const data = await apiLogin(username, password);
       if (data.role !== 'admin') {
