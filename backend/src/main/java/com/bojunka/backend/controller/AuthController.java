@@ -48,7 +48,7 @@ public class AuthController {
             String jwt = jwtUtils.generateToken(authentication);
 
             User user = userRepository.findByUsername(request.getUsername().trim()).orElseThrow();
-            return ResponseEntity.ok(new AuthResponse(jwt, user.getRole()));
+            return ResponseEntity.ok(new AuthResponse(jwt, user.getRole().toLowerCase()));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(new ErrorResponse("Invalid username or password"));
         }
@@ -93,7 +93,7 @@ public class AuthController {
         return ResponseEntity.ok(new UserProfileResponse(
                 user.getUsername(),
                 user.getName(),
-                user.getRole()
+                user.getRole().toLowerCase()
         ));
     }
 }
