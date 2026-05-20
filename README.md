@@ -28,11 +28,14 @@ Open **http://localhost:3000**
 
 ## Default accounts
 
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | `admin` | `admin123` |
+| Role | Username | Password | Login page |
+|------|----------|----------|------------|
+| Admin | `admin` | `admin123` | http://localhost:3000/login/admin |
+| Customer | (your sign-up username) | (your password) | http://localhost:3000/login/user |
 
-Customers: use **Sign Up** on the site (role `customer`).
+The admin account is **reset on every backend restart** so `admin` / `admin123` always works.
+
+Customers: use **Sign Up** on the site.
 
 ## Features
 

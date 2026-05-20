@@ -24,7 +24,7 @@ export default function UserLogin() {
     logout();
     try {
       const data = await apiLogin(username, password);
-      if (data.role === 'admin') {
+      if (String(data.role || '').toLowerCase() === 'admin') {
         setError('Please use Admin Login for administrator accounts.');
         return;
       }
