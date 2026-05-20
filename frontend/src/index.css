@@ -257,6 +257,105 @@ h3 {
   border-color: #fcd34d;
 }
 
+.admin-login-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(260px, 340px);
+  gap: 1.5rem;
+  width: min(920px, 100%);
+  margin: 0 auto;
+}
+
+.admin-login-card {
+  width: 100%;
+  position: relative;
+}
+
+.admin-badge {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.admin-credentials-panel {
+  background: linear-gradient(160deg, #3f2a1d 0%, #5c3d2e 100%);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+}
+
+.admin-credentials-panel h2 {
+  color: #fde68a;
+  margin-bottom: 0.5rem;
+}
+
+.admin-credentials-panel p {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.9rem;
+}
+
+.credential-list {
+  margin: 1.25rem 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.credential-list dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+  margin-bottom: 0.25rem;
+}
+
+.credential-list dd {
+  margin: 0;
+}
+
+.credential-list code {
+  display: inline-block;
+  padding: 0.35rem 0.65rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #fde68a;
+}
+
+.credential-note {
+  font-size: 0.8rem !important;
+  line-height: 1.45;
+  margin-bottom: 1.25rem;
+}
+
+.credential-note code {
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  color: #fde68a;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.admin-auth .btn-ghost {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fde68a;
+  border: 1px solid rgba(253, 230, 138, 0.35);
+}
+
+.admin-auth .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
 .form-stack {
   display: flex;
   flex-direction: column;
@@ -484,6 +583,12 @@ select:focus {
 .loading-msg {
   text-align: center;
   color: var(--ink-muted);
+}
+
+@media (max-width: 768px) {
+  .admin-login-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {
