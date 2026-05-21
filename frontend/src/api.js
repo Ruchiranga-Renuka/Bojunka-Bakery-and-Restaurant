@@ -102,3 +102,9 @@ export async function placeOrder(token, category, order) {
     body: JSON.stringify(order),
   });
 }
+
+export async function fetchMyOrders(token) {
+  return apiFetch('/api/orders', {
+    headers: authHeaders(token),
+  });
+}
