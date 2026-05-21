@@ -6,6 +6,7 @@ import UserLogin from './pages/UserLogin';
 import AdminLogin from './pages/AdminLogin';
 import Register from './pages/Register';
 import Menu from './pages/Menu';
+import OrderHistory from './pages/OrderHistory';
 import AdminDashboard from './pages/AdminDashboard';
 
 export default function App() {
@@ -17,6 +18,14 @@ export default function App() {
         <Route path="/login/admin" element={<AdminLogin />} />
         <Route path="/register" element={<Register />} />
         <Route path="/menu" element={<Menu />} />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute userOnly>
+              <OrderHistory />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin"
           element={
