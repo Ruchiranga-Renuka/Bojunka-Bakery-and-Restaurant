@@ -34,7 +34,12 @@ export default function Layout({ children }) {
             </>
           )}
           {isAuthenticated && isAdmin && <Link to="/admin">Admin Panel</Link>}
-          {isAuthenticated && !isAdmin && <Link to="/menu">Order Food</Link>}
+          {isAuthenticated && !isAdmin && (
+            <>
+              <Link to="/menu">Order Food</Link>
+              <Link to="/orders">My Orders</Link>
+            </>
+          )}
           {isAuthenticated && (
             <button type="button" className="btn btn-sm btn-ghost" onClick={handleLogout}>
               Logout {username ? `(${username})` : ''}
