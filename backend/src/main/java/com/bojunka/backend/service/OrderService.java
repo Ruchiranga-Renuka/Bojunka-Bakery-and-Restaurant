@@ -3,6 +3,7 @@ package com.bojunka.backend.service;
 import com.bojunka.backend.dto.BillResponse;
 import com.bojunka.backend.dto.OrderRequest;
 import com.bojunka.backend.dto.OrderResponse;
+import com.bojunka.backend.dto.OrdersSummaryResponse;
 import com.bojunka.backend.dto.ReceiptResponse;
 import com.bojunka.backend.model.Food;
 import com.bojunka.backend.model.Order;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -39,6 +41,7 @@ public class OrderService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public ResponseEntity<?> placeOrder(OrderRequest request) {
         Food food = foodRepository.findById(request.getItemId()).orElse(null);
         if (food == null) {
@@ -65,11 +68,22 @@ public class OrderService {
 
     private static final String BUSINESS_NAME = "Bojunka Bakery and Restaurant";
 
+    @Transactional(readOnly = true)
+    public OrdersSummaryResponse getOrdersSummaryForCurrentUser() {
+        List<OrderResponse> orders = getOrdersForCurrentUser();
+        List<OrderResponse> pending = orders.stream()
+                .filter(order -> order.getReceiptNumber() == null || order.getReceiptNumber().isBlank())
+                .toList();
+        return new OrdersSummaryResponse(orders, new BillResponse(pending, sumTotals(pending), pending.size()));
+    }
+
+    @Transactional(readOnly = true)
     public List<OrderResponse> getOrdersForCurrentUser() {
         List<Order> orders = orderRepository.findByCustomerInOrderByDateDesc(customerLookupKeys());
         return orders.stream().map(this::toResponse).toList();
     }
 
+    @Transactional(readOnly = true)
     public BillResponse getBillForCurrentUser() {
         List<OrderResponse> items = getPendingBillItems();
         return new BillResponse(items, sumTotals(items), items.size());
@@ -141,6 +155,19 @@ public class OrderService {
 
     private OrderResponse toResponse(Order order) {
         Food item = order.getItem();
+        if (item == null) {
+            return new OrderResponse(
+                    order.getId(),
+                    "Unavailable item",
+                    0.0,
+                    order.getQuantity() != null ? order.getQuantity() : 0,
+                    "unknown",
+                    order.getDate(),
+                    0.0,
+                    order.getReceiptNumber()
+            );
+        }
+
         double price = item.getPrice() != null ? item.getPrice() : 0;
         int qty = order.getQuantity() != null ? order.getQuantity() : 0;
 

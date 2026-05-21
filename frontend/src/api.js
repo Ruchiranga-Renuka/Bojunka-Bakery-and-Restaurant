@@ -104,9 +104,25 @@ export async function placeOrder(token, category, order) {
 }
 
 export async function fetchMyOrders(token) {
-  return apiFetch('/api/orders', {
+  const data = await apiFetch('/api/orders', {
     headers: authHeaders(token),
   });
+
+  // Support older backends that returned a plain order array.
+  if (Array.isArray(data)) {
+    const pending = data.filter((order) => !order.receiptNumber);
+    const totalAmount = pending.reduce((sum, order) => sum + (order.total || 0), 0);
+    return {
+      orders: data,
+      bill: {
+        items: pending,
+        totalAmount,
+        itemCount: pending.length,
+      },
+    };
+  }
+
+  return data;
 }
 
 export async function fetchBill(token) {

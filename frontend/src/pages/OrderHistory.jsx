@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Receipt from '../components/Receipt';
-import { fetchBill, fetchMyOrders, issueReceipt } from '../api';
+import { fetchMyOrders, issueReceipt } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/currency';
 
@@ -13,10 +13,17 @@ function formatDate(value) {
   });
 }
 
+function buildBillFromOrders(orders) {
+  const items = orders.filter((order) => !order.receiptNumber);
+  const totalAmount = items.reduce((sum, order) => sum + (order.total || 0), 0);
+  return { items, totalAmount, itemCount: items.length };
+}
+
 export default function OrderHistory() {
   const { token } = useAuth();
+  const location = useLocation();
   const [orders, setOrders] = useState([]);
-  const [bill, setBill] = useState(null);
+  const [bill, setBill] = useState({ items: [], totalAmount: 0, itemCount: 0 });
   const [receipt, setReceipt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [issuing, setIssuing] = useState(false);
@@ -24,14 +31,19 @@ export default function OrderHistory() {
   const [billMsg, setBillMsg] = useState('');
 
   const loadData = useCallback(async () => {
+    if (!token) return;
+
     setLoading(true);
     setError('');
     try {
-      const [ordersData, billData] = await Promise.all([fetchMyOrders(token), fetchBill(token)]);
+      const summary = await fetchMyOrders(token);
+      const ordersData = summary.orders || [];
       setOrders(ordersData);
-      setBill(billData);
+      setBill(summary.bill || buildBillFromOrders(ordersData));
     } catch (err) {
       setError(err.message || 'Could not load orders');
+      setOrders([]);
+      setBill({ items: [], totalAmount: 0, itemCount: 0 });
     } finally {
       setLoading(false);
     }
@@ -39,7 +51,7 @@ export default function OrderHistory() {
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [loadData, location.key]);
 
   const handleIssueReceipt = async () => {
     setIssuing(true);
@@ -63,19 +75,22 @@ export default function OrderHistory() {
 
   const totalSpent = orders.reduce((sum, order) => sum + (order.total || 0), 0);
   const billItems = bill?.items || [];
-  const billTotal = bill?.totalAmount || 0;
+  const billTotal = bill?.totalAmount ?? 0;
 
   return (
     <section className="orders-page">
       <header className="page-header">
         <h1>My Orders</h1>
-        <p>View your bill total and issue a receipt for items not yet receipted.</p>
+        <p>View your ordered items, bill total, and receipt.</p>
       </header>
 
       <p className="orders-actions">
         <Link to="/menu" className="btn btn-sm btn-outline">
           Order more food
         </Link>
+        <button type="button" className="btn btn-sm btn-ghost" onClick={loadData} disabled={loading}>
+          Refresh
+        </button>
       </p>
 
       {loading && <p className="loading-msg">Loading your orders…</p>}

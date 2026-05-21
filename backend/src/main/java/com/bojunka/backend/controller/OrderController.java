@@ -1,7 +1,7 @@
 package com.bojunka.backend.controller;
 
 import com.bojunka.backend.dto.BillResponse;
-import com.bojunka.backend.dto.OrderResponse;
+import com.bojunka.backend.dto.OrdersSummaryResponse;
 import com.bojunka.backend.dto.ReceiptResponse;
 import com.bojunka.backend.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +22,8 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<OrderResponse>> getMyOrders() {
-        return ResponseEntity.ok(orderService.getOrdersForCurrentUser());
+    public ResponseEntity<OrdersSummaryResponse> getMyOrders() {
+        return ResponseEntity.ok(orderService.getOrdersSummaryForCurrentUser());
     }
 
     @GetMapping("/bill")
