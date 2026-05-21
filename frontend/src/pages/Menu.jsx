@@ -10,7 +10,7 @@ const TABS = [
 ];
 
 export default function Menu() {
-  const { isAuthenticated, isAdmin, token, name, username } = useAuth();
+  const { isAuthenticated, isAdmin, token } = useAuth();
   const [tab, setTab] = useState('restaurant');
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,9 +48,13 @@ export default function Menu() {
       await placeOrder(token, tab, {
         itemId: food.id,
         quantity: quantities[food.id] || 1,
-        customer: name || username,
       });
-      setOrderMsg(`Order placed for ${food.name}!`);
+      setOrderMsg(
+        <>
+          Order placed for {food.name}!{' '}
+          <Link to="/orders">View my orders</Link>
+        </>
+      );
       loadFoods();
     } catch (err) {
       setOrderMsg(err.message || 'Order failed');
