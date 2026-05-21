@@ -1,7 +1,9 @@
 package com.bojunka.backend.service;
 
+import com.bojunka.backend.dto.BillResponse;
 import com.bojunka.backend.dto.OrderRequest;
 import com.bojunka.backend.dto.OrderResponse;
+import com.bojunka.backend.dto.ReceiptResponse;
 import com.bojunka.backend.model.Food;
 import com.bojunka.backend.model.Order;
 import com.bojunka.backend.model.User;
@@ -10,11 +12,15 @@ import com.bojunka.backend.repository.OrderRepository;
 import com.bojunka.backend.repository.UserRepository;
 import com.bojunka.backend.security.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -57,9 +63,80 @@ public class OrderService {
         return ResponseEntity.ok("{\"message\": \"Order placed successfully\"}");
     }
 
+    private static final String BUSINESS_NAME = "Bojunka Bakery and Restaurant";
+
     public List<OrderResponse> getOrdersForCurrentUser() {
         List<Order> orders = orderRepository.findByCustomerInOrderByDateDesc(customerLookupKeys());
         return orders.stream().map(this::toResponse).toList();
+    }
+
+    public BillResponse getBillForCurrentUser() {
+        List<OrderResponse> items = getPendingBillItems();
+        return new BillResponse(items, sumTotals(items), items.size());
+    }
+
+    public ReceiptResponse issueReceiptForCurrentUser() {
+        List<String> keys = customerLookupKeys();
+        List<Order> pending = orderRepository.findByCustomerInAndReceiptNumberIsNullOrderByDateDesc(keys);
+        if (pending.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No items on the bill to receipt");
+        }
+
+        String receiptNumber = generateReceiptNumber();
+        Date issuedAt = new Date();
+        for (Order order : pending) {
+            order.setReceiptNumber(receiptNumber);
+            order.setReceiptIssuedAt(issuedAt);
+        }
+        orderRepository.saveAll(pending);
+
+        User user = userRepository.findByUsername(resolveCustomerUsername()).orElseThrow();
+        List<OrderResponse> items = pending.stream().map(this::toResponse).toList();
+        return new ReceiptResponse(
+                receiptNumber,
+                issuedAt,
+                user.getName() != null && !user.getName().isBlank() ? user.getName() : user.getUsername(),
+                BUSINESS_NAME,
+                items,
+                sumTotals(items)
+        );
+    }
+
+    public ReceiptResponse getReceiptForCurrentUser(String receiptNumber) {
+        List<Order> orders = orderRepository.findByCustomerInAndReceiptNumberOrderByDateDesc(
+                customerLookupKeys(),
+                receiptNumber
+        );
+        if (orders.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found");
+        }
+
+        User user = userRepository.findByUsername(resolveCustomerUsername()).orElseThrow();
+        List<OrderResponse> items = orders.stream().map(this::toResponse).toList();
+        return new ReceiptResponse(
+                receiptNumber,
+                orders.get(0).getReceiptIssuedAt(),
+                user.getName() != null && !user.getName().isBlank() ? user.getName() : user.getUsername(),
+                BUSINESS_NAME,
+                items,
+                sumTotals(items)
+        );
+    }
+
+    private List<OrderResponse> getPendingBillItems() {
+        return orderRepository.findByCustomerInAndReceiptNumberIsNullOrderByDateDesc(customerLookupKeys())
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    private double sumTotals(List<OrderResponse> items) {
+        return items.stream().mapToDouble(item -> item.getTotal() != null ? item.getTotal() : 0).sum();
+    }
+
+    private String generateReceiptNumber() {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        return "RCP-" + timestamp;
     }
 
     private OrderResponse toResponse(Order order) {
@@ -74,7 +151,8 @@ public class OrderService {
                 qty,
                 item.getCategory(),
                 order.getDate(),
-                price * qty
+                price * qty,
+                order.getReceiptNumber()
         );
     }
 

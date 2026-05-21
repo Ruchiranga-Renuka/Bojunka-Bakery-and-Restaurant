@@ -23,4 +23,6 @@ public class Order {
     private Integer quantity;
     private String customer;
     private Date date;
+    private String receiptNumber;
+    private Date receiptIssuedAt;
 }

@@ -5,17 +5,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderResponse {
-    private String id;
-    private String itemName;
-    private Double itemPrice;
-    private Integer quantity;
-    private String category;
-    private Date date;
-    private Double total;
+public class ReceiptResponse {
     private String receiptNumber;
+    private Date issuedAt;
+    private String customerName;
+    private String businessName;
+    private List<OrderResponse> items;
+    private Double totalAmount;
 }

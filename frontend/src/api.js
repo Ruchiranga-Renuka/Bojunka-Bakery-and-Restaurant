@@ -108,3 +108,22 @@ export async function fetchMyOrders(token) {
     headers: authHeaders(token),
   });
 }
+
+export async function fetchBill(token) {
+  return apiFetch('/api/orders/bill', {
+    headers: authHeaders(token),
+  });
+}
+
+export async function issueReceipt(token) {
+  return apiFetch('/api/orders/receipt', {
+    method: 'POST',
+    headers: authHeaders(token),
+  });
+}
+
+export async function fetchReceipt(token, receiptNumber) {
+  return apiFetch(`/api/orders/receipt/${encodeURIComponent(receiptNumber)}`, {
+    headers: authHeaders(token),
+  });
+}
