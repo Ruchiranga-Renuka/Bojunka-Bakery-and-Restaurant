@@ -3,6 +3,7 @@ package com.bojunka.backend.controller;
 import com.bojunka.backend.dto.BillResponse;
 import com.bojunka.backend.dto.OrdersSummaryResponse;
 import com.bojunka.backend.dto.ReceiptResponse;
+import com.bojunka.backend.dto.ThankYouSmsResponse;
 import com.bojunka.backend.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,5 +40,10 @@ public class OrderController {
     @GetMapping("/receipt/{receiptNumber}")
     public ResponseEntity<ReceiptResponse> getReceipt(@PathVariable String receiptNumber) {
         return ResponseEntity.ok(orderService.getReceiptForCurrentUser(receiptNumber));
+    }
+
+    @PostMapping("/receipt/{receiptNumber}/thank-you")
+    public ResponseEntity<ThankYouSmsResponse> sendThankYouSms(@PathVariable String receiptNumber) {
+        return ResponseEntity.ok(orderService.sendThankYouSmsForReceipt(receiptNumber));
     }
 }
