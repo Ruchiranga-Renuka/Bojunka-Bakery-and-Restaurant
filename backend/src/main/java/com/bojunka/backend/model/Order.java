@@ -25,4 +25,5 @@ public class Order {
     private Date date;
     private String receiptNumber;
     private Date receiptIssuedAt;
+    private Boolean thankYouSmsSent;
 }
