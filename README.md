@@ -7,35 +7,6 @@ Full-stack app: **Spring Boot** REST API + **React** frontend for customer order
 - Java 17+
 - Node.js 18+ (for the frontend only)
 
-## Quick start
-
-### 1. Start the API (port 8080)
-
-```bash
-cd backend
-mvnw.cmd spring-boot:run
-```
-
-### 2. Start the frontend (port 3000)
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Open **http://localhost:3000**
-
-## Default accounts
-
-| Role | Username | Password | Login page |
-|------|----------|----------|------------|
-| Admin | `admin` | `admin123` | http://localhost:3000/login/admin |
-| Customer | (your sign-up username) | (your password) | http://localhost:3000/login/user |
-
-The admin account is **reset on every backend restart** so `admin` / `admin123` always works.
-
-Customers: use **Sign Up** on the site.
 
 ## Features
 
@@ -92,5 +63,5 @@ npm run build
 ```
 
 H2 console: `http://localhost:8080/h2-console` — JDBC URL `jdbc:h2:mem:bojunkadb`, user `sa`, empty password.
-<img width="1918" height="1077" alt="image" src="https://github.com/user-attachments/assets/48cdb7c0-d7d7-40c3-8864-b38d4dddc5bf" />
+
 
