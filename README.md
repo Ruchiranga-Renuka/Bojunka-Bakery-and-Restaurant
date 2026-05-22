@@ -1,4 +1,4 @@
-# Bojunka Bakery and Restaurant
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/726d4823-ef9a-42f3-81dd-4bf850e298a8" /># Bojunka Bakery and Restaurant
 
 Full-stack app: **Spring Boot** REST API + **React** frontend for customer orders and admin food management.
 
@@ -70,6 +70,7 @@ H2 console: `http://localhost:8080/h2-console` — JDBC URL `jdbc:h2:mem:bojunka
 <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/3a23b5cd-0c2b-4416-bd63-726178e18fa9" />
 <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/f8cb9afa-99bd-461c-b332-67f381635868" />
 <img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/48286dc2-457b-4253-9ebf-1f44e3b5aa1a" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/68edf329-490a-45c2-97d1-6487f61aff19" />
 <img width="1914" height="1079" alt="image" src="https://github.com/user-attachments/assets/c075f563-0ee0-4a44-be05-9a6f4b4dffc4" />
 <img width="1919" height="1075" alt="image" src="https://github.com/user-attachments/assets/4f3b821b-c865-4b2c-bc7a-52c0ca3f8169" />
 
