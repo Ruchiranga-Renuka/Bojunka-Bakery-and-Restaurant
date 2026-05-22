@@ -5,7 +5,7 @@ export default function Home() {
   const { isAuthenticated, isAdmin } = useAuth();
 
   return (
-    <section className="hero">
+    <section className="hero hero--home">
       <p className="eyebrow">Welcome to</p>
       <h1>Bojunka Bakery and Restaurant</h1>
       <p className="hero-text">
@@ -21,7 +21,7 @@ export default function Home() {
             <Link to="/login/user" className="btn btn-secondary">
               User Login
             </Link>
-            <Link to="/login/admin" className="btn btn-outline">
+            <Link to="/login/admin" className="btn btn-outline-light">
               Admin Login
             </Link>
           </>
@@ -38,11 +38,11 @@ export default function Home() {
         )}
       </div>
       <div className="hero-cards">
-        <article className="info-card">
+        <article className="info-card info-card-restaurant">
           <h3>Restaurant</h3>
           <p>Hot meals, rice plates, and daily specials.</p>
         </article>
-        <article className="info-card">
+        <article className="info-card info-card-bakery">
           <h3>Bakery</h3>
           <p>Fresh bread, pastries, and sweet treats.</p>
         </article>
