@@ -1,9 +1,13 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import PageBackground from './PageBackground';
 import { useAuth } from '../context/AuthContext';
+import { getPageBackground } from '../utils/pageBackgrounds';
 
 export default function Layout({ children }) {
   const { isAuthenticated, isAdmin, username, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const pageBackground = getPageBackground(pathname);
 
   const handleLogout = () => {
     logout();
@@ -11,7 +15,8 @@ export default function Layout({ children }) {
   };
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${pageBackground ? ' app-shell--has-bg' : ''}`}>
+      {pageBackground && <PageBackground {...pageBackground} />}
       <header className="site-header">
         <Link to="/" className="brand">
           <span className="brand-mark">B</span>
@@ -47,7 +52,7 @@ export default function Layout({ children }) {
           )}
         </nav>
       </header>
-      <main className="site-main">{children}</main>
+      <main className={`site-main${pageBackground ? ' site-main--with-bg' : ''}`}>{children}</main>
       <footer className="site-footer">
         <p>&copy; {new Date().getFullYear()} Bojunka Bakery and Restaurant</p>
       </footer>
