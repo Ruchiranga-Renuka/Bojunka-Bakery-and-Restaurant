@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Receipt from '../components/Receipt';
-import { fetchMyOrders, issueReceipt } from '../api';
+import { fetchMyOrders, issueReceipt, sendThankYouSms } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../utils/currency';
 
@@ -29,6 +29,8 @@ export default function OrderHistory() {
   const [issuing, setIssuing] = useState(false);
   const [error, setError] = useState('');
   const [billMsg, setBillMsg] = useState('');
+  const [smsMsg, setSmsMsg] = useState('');
+  const [sendingSms, setSendingSms] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!token) return;
@@ -69,8 +71,37 @@ export default function OrderHistory() {
     }
   };
 
+  const sendThankYouAfterPrint = useCallback(async () => {
+    if (!token || !receipt?.receiptNumber) return;
+
+    setSendingSms(true);
+    setSmsMsg('');
+    try {
+      const result = await sendThankYouSms(token, receipt.receiptNumber);
+      setSmsMsg(result.message || 'Thank you message sent to your mobile number.');
+    } catch (err) {
+      setSmsMsg(err.message || 'Could not send thank-you message');
+    } finally {
+      setSendingSms(false);
+    }
+  }, [token, receipt]);
+
   const handlePrint = () => {
+    let smsTriggered = false;
+
+    const triggerThankYouSms = () => {
+      if (smsTriggered) return;
+      smsTriggered = true;
+      window.removeEventListener('afterprint', triggerThankYouSms);
+      sendThankYouAfterPrint();
+    };
+
+    window.addEventListener('afterprint', triggerThankYouSms);
     window.print();
+
+    window.setTimeout(() => {
+      if (!smsTriggered) triggerThankYouSms();
+    }, 2000);
   };
 
   const totalSpent = orders.reduce((sum, order) => sum + (order.total || 0), 0);
@@ -84,18 +115,25 @@ export default function OrderHistory() {
         <p>View your ordered items, bill total, and receipt.</p>
       </header>
 
-      <p className="orders-actions">
-        <Link to="/menu" className="btn btn-sm btn-outline">
+      <div className="orders-actions">
+        <Link to="/menu" className="btn btn-sm btn-ghost orders-action-btn">
           Order more food
         </Link>
-        <button type="button" className="btn btn-sm btn-ghost" onClick={loadData} disabled={loading}>
+        <button
+          type="button"
+          className="btn btn-sm btn-ghost orders-action-btn"
+          onClick={loadData}
+          disabled={loading}
+        >
           Refresh
         </button>
-      </p>
+      </div>
 
       {loading && <p className="loading-msg">Loading your orders…</p>}
       {error && <p className="form-error">{error}</p>}
       {billMsg && <p className="form-success">{billMsg}</p>}
+      {smsMsg && <p className={smsMsg.includes('sent') ? 'form-success' : 'form-error'}>{smsMsg}</p>}
+      {sendingSms && <p className="loading-msg">Sending thank-you text message…</p>}
 
       {!loading && !error && (
         <section className="bill-card" aria-labelledby="bill-heading">
@@ -165,8 +203,8 @@ export default function OrderHistory() {
 
       {!loading && !error && orders.length > 0 && (
         <>
-          <h2 className="orders-history-title">Order history</h2>
-          <p className="orders-summary">
+          <h2 className="orders-history-title orders-action-btn">Order history</h2>
+          <p className="orders-summary orders-action-btn">
             {orders.length} order{orders.length === 1 ? '' : 's'} · Lifetime total{' '}
             <strong>{formatPrice(totalSpent)}</strong>
           </p>
