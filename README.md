@@ -42,7 +42,27 @@ Customers: use **Sign Up** on the site.
 - **User login** — browse menu, place restaurant/bakery orders
 - **Admin login** — add food items (restaurant or bakery category)
 - **Menu** — public browsing; orders require user login
+- **My Orders** — bill total, receipt, and thank-you SMS after printing
 - Sample menu items are seeded on first API start
+
+## Thank-you SMS (after receipt print)
+
+When a customer prints their receipt, a text message is sent to the **mobile number from sign-up**:
+
+> Thank you! Come again to Bojunka Bakery and Restaurant.
+
+**Development (default):** messages are logged in the backend console (`bojunka.sms.provider=console`).
+
+**Production (real SMS via Twilio):** in `backend/src/main/resources/application.properties`:
+
+```properties
+bojunka.sms.provider=twilio
+bojunka.sms.twilio-account-sid=your_account_sid
+bojunka.sms.twilio-auth-token=your_auth_token
+bojunka.sms.twilio-from-number=+1234567890
+```
+
+Use the customer phone in international format (e.g. `0771234567` is normalized to `+94771234567`).
 
 ## API (Spring Boot)
 
@@ -57,6 +77,9 @@ Customers: use **Sign Up** on the site.
 | POST | `/api/bakery/foods` | Admin |
 | POST | `/api/restaurant/orders` | Customer |
 | POST | `/api/bakery/orders` | Customer |
+| GET | `/api/orders` | Customer |
+| POST | `/api/orders/receipt` | Customer |
+| POST | `/api/orders/receipt/{number}/thank-you` | Customer |
 
 ## Build
 
