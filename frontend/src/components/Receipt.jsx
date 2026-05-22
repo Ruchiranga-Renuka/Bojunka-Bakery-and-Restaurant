@@ -54,12 +54,17 @@ export default function Receipt({ receipt, onPrint }) {
         </tfoot>
       </table>
 
-      <p className="receipt-thanks">Thank you for dining with us!</p>
+      <p className="receipt-thanks">Thank you for your order</p>
 
       {onPrint && (
-        <button type="button" className="btn btn-sm btn-primary receipt-print-btn" onClick={onPrint}>
-          Print receipt
-        </button>
+        <>
+          <p className="receipt-sms-note">
+            After you print, a thank-you text will be sent to the mobile number on your account.
+          </p>
+          <button type="button" className="btn btn-sm btn-primary receipt-print-btn" onClick={onPrint}>
+            Print receipt
+          </button>
+        </>
       )}
     </article>
   );
