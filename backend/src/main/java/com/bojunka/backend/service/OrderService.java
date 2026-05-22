@@ -1,10 +1,12 @@
 package com.bojunka.backend.service;
 
+import com.bojunka.backend.config.SmsProperties;
 import com.bojunka.backend.dto.BillResponse;
 import com.bojunka.backend.dto.OrderRequest;
 import com.bojunka.backend.dto.OrderResponse;
 import com.bojunka.backend.dto.OrdersSummaryResponse;
 import com.bojunka.backend.dto.ReceiptResponse;
+import com.bojunka.backend.dto.ThankYouSmsResponse;
 import com.bojunka.backend.model.Food;
 import com.bojunka.backend.model.Order;
 import com.bojunka.backend.model.User;
@@ -40,6 +42,12 @@ public class OrderService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SmsService smsService;
+
+    @Autowired
+    private SmsProperties smsProperties;
 
     @Transactional
     public ResponseEntity<?> placeOrder(OrderRequest request) {
@@ -113,6 +121,54 @@ public class OrderService {
                 BUSINESS_NAME,
                 items,
                 sumTotals(items)
+        );
+    }
+
+    @Transactional
+    public ThankYouSmsResponse sendThankYouSmsForReceipt(String receiptNumber) {
+        List<Order> orders = orderRepository.findByCustomerInAndReceiptNumberOrderByDateDesc(
+                customerLookupKeys(),
+                receiptNumber
+        );
+        if (orders.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Receipt not found");
+        }
+
+        boolean alreadySent = orders.stream().allMatch(order -> Boolean.TRUE.equals(order.getThankYouSmsSent()));
+        User user = userRepository.findByUsername(resolveCustomerUsername()).orElseThrow();
+
+        if (user.getPhoneNumber() == null || user.getPhoneNumber().isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Add a mobile number in your account details to receive thank-you messages"
+            );
+        }
+
+        if (!smsProperties.isEnabled()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "SMS service is disabled");
+        }
+
+        String phone = user.getPhoneNumber().trim();
+        if (alreadySent) {
+            return new ThankYouSmsResponse(
+                    "Thank you message was already sent for this receipt.",
+                    PhoneNumberUtil.normalize(phone),
+                    receiptNumber,
+                    true
+            );
+        }
+
+        smsService.sendThankYouMessage(phone, smsProperties.getThankYouMessage());
+        for (Order order : orders) {
+            order.setThankYouSmsSent(true);
+        }
+        orderRepository.saveAll(orders);
+
+        return new ThankYouSmsResponse(
+                "Thank you message sent to your mobile number.",
+                PhoneNumberUtil.normalize(phone),
+                receiptNumber,
+                false
         );
     }
 
