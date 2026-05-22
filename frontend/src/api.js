@@ -143,3 +143,10 @@ export async function fetchReceipt(token, receiptNumber) {
     headers: authHeaders(token),
   });
 }
+
+export async function sendThankYouSms(token, receiptNumber) {
+  return apiFetch(`/api/orders/receipt/${encodeURIComponent(receiptNumber)}/thank-you`, {
+    method: 'POST',
+    headers: authHeaders(token),
+  });
+}
