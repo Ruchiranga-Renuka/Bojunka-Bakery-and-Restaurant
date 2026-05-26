@@ -1,9 +1,9 @@
 package com.bojunka.backend.repository;
 
 import com.bojunka.backend.model.Food;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
-public interface FoodRepository extends JpaRepository<Food, String> {
+public interface FoodRepository extends MongoRepository<Food, String> {
     List<Food> findByCategory(String category);
 }
