@@ -1,6 +1,8 @@
 package com.bojunka.backend.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,15 +11,12 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "orders")
+@Document(collection = "orders")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     
-    @ManyToOne
-    @JoinColumn(name = "food_id")
+    @DBRef
     private Food item;
     
     private Integer quantity;
